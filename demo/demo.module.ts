@@ -42,7 +42,7 @@ export class DemoModule {
       console.log('request', connection.request);
 
       var headers: Headers = new Headers();
-      headers.set('X-Total-Count', "" + count);
+      headers.set('X-Total-Count', '' + count);
 
       var body: any[] = [];
       for (let i: number = 0; i < 10; ++i) {
