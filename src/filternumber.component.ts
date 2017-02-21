@@ -2,8 +2,13 @@ import {Component, Output, EventEmitter} from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
 
 /**
- * @example
- * <filter-number (onChange)="list.setFilter('name', 'equal', $event)"></filter-number>
+ * Create a text input for filtering
+ *
+ * #### Example
+ *
+ * ```html
+ * <vs-filter-number (onChange)="list.setFilter('name', 'equal', $event)"></vs-filter-number>
+ * ```
  */
 @Component({
   selector: 'vs-filter-number',
@@ -16,9 +21,17 @@ import {BrowserModule} from '@angular/platform-browser';
   `,
 })
 export class FilterNumber {
+  /**
+   * Notify changes
+   */
   @Output() onChange: EventEmitter<any> = new EventEmitter<any>();
+  /**
+   * Filter value
+   */
   value: String;
-
+  /**
+   * Called when model(value) change -> emit onChange
+   */
   update(val: String): void {
     this.onChange.emit(val);
   }

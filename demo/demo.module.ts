@@ -36,12 +36,12 @@ export class DemoModule {
   // fake request
   constructor(private backend: MockBackend, options: BaseRequestOptions, realBackend: XHRBackend) {
     // cache this value do not modify everytime...
-    let count = Math.max(100, Math.floor(Math.random() * 100));
+    let count: number = Math.max(100, Math.floor(Math.random() * 100));
 
     this.backend.connections.subscribe( connection => {
       console.log('request', connection.request);
 
-      var headers = new Headers();
+      var headers: Headers = new Headers();
       headers.set('X-Total-Count', "" + count);
 
       var body: any[] = [];
