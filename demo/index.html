@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" crossorigin="anonymous">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Faker/3.1.0/faker.min.js"></script>
-    <title>Very simple table. Angular 2 module.</title>
+    <title>Very Simple Table. Angular 2 module.</title>
   </head>
   <body>
 
@@ -19,18 +19,25 @@
         data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png">
     </a>
 
-    <nav class="navbar navbar-default" role="navigation">
-      <div class="container-fluid">
-        <div class="navbar-header">
-          <a class="navbar-brand" href="#">Very simple table. Angular 2 module.</a>
-        </div>
-        <ul class="nav navbar-nav hidden-xs">
-          <li><a href="#demo">Demo</a></li>
-          <li><a href="https://github.com/llafuente/ng2-vs-table#installation">Installation</a></li>
-          <li><a href="https://llafuente.github.io/ng2-vs-table/docs/">Documentation</a></li>
-        </ul>
-      </div>
+    <nav class="navbar navbar-toggleable-md navbar-light bg-faded" role="navigation">
+      <a class="navbar-brand" href="#">ng2-vs-table</a>
+
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" href="#demo">Demo</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/llafuente/ng2-vs-table#installation">Installation</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://llafuente.github.io/ng2-vs-table/docs/">Documentation</a>
+        </li>
+      </ul>
     </nav>
+
+    <div class="alert alert-info" role="alert">
+    There is no backend in this demo, each time you click on sort or enter a filter it just refresh and creates new random data.
+    </div>
 
     <div class="container-fluid" id="demo">
       <demo-app>Loading demo...</demo-app>

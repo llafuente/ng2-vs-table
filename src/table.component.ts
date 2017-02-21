@@ -3,17 +3,46 @@ import {Component, Input, OnInit} from '@angular/core';
 import {Http, Response, RequestOptions, Headers} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 
-
-class Order {
+/**
+ * Order type
+ */
+export class Order {
   by: string;
   mod: string;
 }
-
-
+/**
+ * Metadata added to objects in the list
+ */
 export class ListObject {
   public $selected: boolean;
 };
 
+/**
+ * Table component
+ *
+ * NOTE: Transclude thead and tbody
+ *
+ * #### Example
+ *
+ * ```html
+ * <vs-table uri="/api/v1/users" #list>
+ *   <thead>
+ *   <tr>
+ *     <th>Id</th>
+ *     <th>Name</th>
+ *   </tr>
+ *   </thead>
+ *   <tbody>
+ *   <tr
+ *     *ngFor="let row of list.list; let i = index;"
+ *   >
+ *     <td>{{row.id}}</td>
+ *     <td>{{row.name}}</td>
+ *   </tr>
+ *   </tbody>
+ * </vs-table>
+ * ```
+ */
 @Component({
   selector: 'vs-table',
   template: `
@@ -77,57 +106,45 @@ order: {{order | json}}
     </div>
   `,
 })
-/**
- * @example
- * <list-controller uri="/api/list" #list>
- *   <thead>
- *     <tr><th>xxx</th></tr>
- *   </thead>
- *   <tbody>
- *     <tr *ngFor="let row of list.list; let i = index;">
- *       <td>{{row.xxx}}</td>
- *      </tr>
- *    </tbody>
- * </list-controller>
- */
 export class Table implements OnInit {
   // inputs
-  /*
+  /**
    * Api URL
    */
   @Input() uri: string;
-  /*
+  /**
    * Microseconds before trigger the refresh
    */
   @Input() refreshDelay: number = 1250;
-  /*
+  /**
    * Don't do the first request
    */
   @Input() starStopped: boolean = false;
-  /*
+  /**
    * Current/Initial order
    */
   @Input() order: Order = {
     'by': null,
     mod: 'ASC'
   };
-  /*
+  /**
    * Current/Initial filters
-   * @example
+   * ### Example
+   * ```json
    * {
    *   propertyName: {
    *     operator: "",
    *     value: xx
    *   }
    * }
+   * ```
    */
   @Input() filters: any = {};
-
-  /*
-   * API list of objects
+  /**
+   * list of objects from API
    */
   list: ListObject[] = [];
-  /*
+  /**
    * cloned list for use it at getModified
    */
   original: ListObject[] = [];
@@ -143,25 +160,28 @@ export class Table implements OnInit {
   refreshTimeout: number = null;
 
   constructor(protected http: Http) {}
-
+  /*
+   * refresh unless starStopped
+   */
   ngOnInit(): void {
     if (!this.starStopped) {
       this.refresh();
     }
   }
   /*
+   * Set/remove filter and queueRefresh
    * Note only 'IS NULL' operator allow value to be null
    * the rest just remove the filter.
    */
   setFilter(property: string, operator: string, value: any): void {
-    if (operator == 'IS NULL') {
+    if (operator === 'IS NULL') {
       this.filters[property] = {
         operator: operator,
         value: null // not needed
       };
     } else if (
       value === null ||
-      (typeof value == 'string' && !value.length)
+      (typeof value === 'string' && !value.length)
     ) {
       delete this.filters[property];
     } else {
@@ -172,7 +192,9 @@ export class Table implements OnInit {
     }
     this.queueRefresh();
   }
-
+  /**
+   * Set order and queueRefresh
+   */
   setOrder(prop: string): void {
     if (this.order.by === prop) { // toggle!
       this.order.mod = this.order.mod === 'ASC' ? 'DESC' : 'ASC';
@@ -182,7 +204,9 @@ export class Table implements OnInit {
     }
     this.queueRefresh();
   }
-
+  /**
+   * Gentle refresh with debounce
+   */
   queueRefresh(): void { // debounce
     clearTimeout(this.refreshTimeout);
 
@@ -190,9 +214,13 @@ export class Table implements OnInit {
       this.refresh();
     }, this.refreshDelay);
   }
-
+  /**
+   * Get HTTP Observable
+   */
   getCSV(): void {
-    this.getHttp(new RequestOptions({ headers: new Headers({ 'Content-Type': 'text/csv' })}))
+    this.getHttp(new RequestOptions({
+      headers: new Headers({ 'Content-Type': 'text/csv'
+    })}))
     .subscribe(response => {
       console.log(response);
     });
@@ -226,13 +254,18 @@ export class Table implements OnInit {
     //this.limit = parseInt(response.headers.get('X-Limit'), 10);
     this.updatePagination();
   }
-
+  /**
+   * Get HTTP Observable
+   * This is used for normal list (json) or CSV variant.
+   */
   getHttp(options: RequestOptions = undefined): Observable<Response> {
     return this
       .http
       .get(this.uri + '?' + this.buildOptionsQuery(), options);
   }
-
+  /**
+   * Refresh the list from the server
+   */
   refresh(): any {
     window.clearTimeout(this.refreshTimeout); // also clear here, because pagination it's instant
     this.refreshTimeout = null;
@@ -247,36 +280,50 @@ export class Table implements OnInit {
         err => console.log(err)
       );
   }
-
+  /**
+   * update pagination
+   */
   updatePagination(): void {
     this.pageCount = Math.floor(this.totalCount / this.limit);
     this.pages = Array(this.pageCount).fill(0).map((x, i) => i);
   }
-
+  /**
+   * Go to next page and refresh
+   */
   nextPage(): void {
     ++this.currentPage;
     this.refresh();
   }
-
+  /**
+   * Go to previous page and refresh
+   */
   previousPage(): void {
     --this.currentPage;
     this.refresh();
   }
-
+  /**
+   * Set current page and refresh
+   */
   setPage(page: number): void {
     this.currentPage = page;
     this.refresh();
   }
-
+  /**
+   * Remove given row from list
+   */
   removeRow(index: number): void {
     this.list.splice(index, 1);
   }
-
+  /**
+   * Set limit and refresh
+   */
   setLimit(limit: number): void {
     this.limit = limit;
     this.refresh();
   }
-
+  /**
+   * Toggle row
+   */
   selectRow(index: number): void {
     if (index >= this.list.length) {
       throw new Error('out of bounds');
@@ -285,7 +332,9 @@ export class Table implements OnInit {
     this.list[index].$selected = !this.list[index].$selected;
     this.selectedCount = this.getSelection().length;
   }
-
+  /**
+   * Is given row selected?
+   */
   isSelected(index: number): boolean {
     if (index >= this.list.length) {
       throw new Error('out of bounds');
@@ -293,17 +342,23 @@ export class Table implements OnInit {
 
     return this.list[index].$selected;
   }
-
+  /**
+   * Get selected object list
+   */
   getSelection(): Object[] {
     return this.list.filter((row: ListObject) => {
       return row.$selected;
     });
   }
-
+  /**
+   * Reset list to original values
+   */
   restore(): void {
     this.list = JSON.parse(JSON.stringify(this.original));
   }
-
+  /**
+   * Get modified values list
+   */
   getModified(identifier: string): Object[] {
     var modified:  Object[] = [];
 
