@@ -1,6 +1,6 @@
 {
   "name": "ng2-vs-table",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Server side table/grid system.",
   "main": "./dist/umd/ng2-vs-table.js",
   "module": "./dist/esm/src/index.js",
