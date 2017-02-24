@@ -237,5 +237,15 @@ describe('hello-world component', () => {
     expect(table.limit).to.equal(10);
     expect(table.pages.length).to.equal(5);
 
+    //
+    // getModified test
+    //
+    expect(table.getModified('id').length).to.equal(0);
+
+    (table.list[0] as any).name = 'new name';
+
+    expect(table.getModified('id').length).to.equal(1);
+
+
   }));
 });

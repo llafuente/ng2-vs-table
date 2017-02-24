@@ -365,7 +365,7 @@ export class Table implements OnInit {
     for (var i: number = 0; i < this.list.length; ++i) {
       for (var j: number = 0; j < this.original.length; ++j) {
         if (this.list[i][identifier] === this.original[j][identifier]) {
-          if (JSON.stringify(this.list[i]) === JSON.stringify(this.original[j])) {
+          if (JSON.stringify(this.list[i]) !== JSON.stringify(this.original[j])) {
             modified.push(this.list[i]);
           }
 
