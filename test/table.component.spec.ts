@@ -106,7 +106,7 @@ describe('hello-world component', () => {
   it('should say hello world', inject([MockBackend], (mockBackend) => {
     mockBackend.connections.subscribe((connection) => {
       const headers: Headers = new Headers();
-      headers.set('X-Total-Count', '10');
+      headers.set('X-Total-Count', '45');
 
       connection.mockRespond(new Response(new ResponseOptions({
         headers: headers,
@@ -125,6 +125,8 @@ describe('hello-world component', () => {
     const fixture: ComponentFixture<TestComponent> = TestBed.createComponent(TestComponent);
     fixture.detectChanges();
 
+    let table: Table = fixture.componentInstance.table;
+
     //
     // selection test
     //
@@ -132,65 +134,65 @@ describe('hello-world component', () => {
     // header + 2 rows + 2 footer
     expect(list.length).to.equal(5);
 
-    let selection: any[] = fixture.componentInstance.table.getSelection();
+    let selection: any[] = table.getSelection();
     expect(selection.length).to.equal(0);
 
     list[1].click(); // first is selected!
-    selection = fixture.componentInstance.table.getSelection();
+    selection = table.getSelection();
     expect(selection.length).to.equal(1);
     expect(selection[0].id).to.equal(1);
 
     list[2].click(); // second is selected!
-    selection = fixture.componentInstance.table.getSelection();
+    selection = table.getSelection();
     expect(selection.length).to.equal(2);
     expect(selection[0].id).to.equal(1);
     expect(selection[1].id).to.equal(2);
 
     list[2].click(); // second is deselected!
-    selection = fixture.componentInstance.table.getSelection();
+    selection = table.getSelection();
     expect(selection.length).to.equal(1);
     expect(selection[0].id).to.equal(1);
 
     list[1].click(); // first is deselected!
-    selection = fixture.componentInstance.table.getSelection();
+    selection = table.getSelection();
     expect(selection.length).to.equal(0);
 
     //
     // order test
     //
 
-    expect(fixture.componentInstance.table.refreshTimeout).to.equal(null);
+    expect(table.refreshTimeout).to.equal(null);
     const orders: any = fixture.nativeElement.querySelectorAll('vs-order-by a');
 
     //console.log(fixture.nativeElement);
     // click & force refresh now!
     orders[0].click();
-    expect(fixture.componentInstance.table.refreshTimeout).to.not.equal(null);
-    fixture.componentInstance.table.refresh();
+    expect(table.refreshTimeout).to.not.equal(null);
+    table.refresh();
 
-    expect(fixture.componentInstance.table.order.by).to.equal('id');
-    expect(fixture.componentInstance.table.order.mod).to.equal('ASC');
+    expect(table.order.by).to.equal('id');
+    expect(table.order.mod).to.equal('ASC');
 
     orders[0].click();
-    expect(fixture.componentInstance.table.refreshTimeout).to.not.equal(null);
-    fixture.componentInstance.table.refresh();
+    expect(table.refreshTimeout).to.not.equal(null);
+    table.refresh();
 
-    expect(fixture.componentInstance.table.order.by).to.equal('id');
-    expect(fixture.componentInstance.table.order.mod).to.equal('DESC');
+    expect(table.order.by).to.equal('id');
+    expect(table.order.mod).to.equal('DESC');
 
     orders[1].click();
-    expect(fixture.componentInstance.table.refreshTimeout).to.not.equal(null);
-    fixture.componentInstance.table.refresh();
+    expect(table.refreshTimeout).to.not.equal(null);
+    table.refresh();
 
-    expect(fixture.componentInstance.table.order.by).to.equal('name');
-    expect(fixture.componentInstance.table.order.mod).to.equal('ASC');
+    expect(table.order.by).to.equal('name');
+    expect(table.order.mod).to.equal('ASC');
 
     orders[2].click();
-    expect(fixture.componentInstance.table.refreshTimeout).to.not.equal(null);
-    fixture.componentInstance.table.refresh();
+    expect(table.refreshTimeout).to.not.equal(null);
+    table.refresh();
 
-    expect(fixture.componentInstance.table.order.by).to.equal('role');
-    expect(fixture.componentInstance.table.order.mod).to.equal('ASC');
+    expect(table.order.by).to.equal('role');
+    expect(table.order.mod).to.equal('ASC');
 
     //
     // filters test
@@ -204,29 +206,36 @@ describe('hello-world component', () => {
     inputs[0].dispatchEvent(new Event('input'));
     fixture.detectChanges();
 
-    expect(fixture.componentInstance.table.refreshTimeout).to.not.equal(null);
-    fixture.componentInstance.table.refresh();
-    expect(fixture.componentInstance.table.filters.id.value).to.equal(10);
-    expect(fixture.componentInstance.table.filters.id.operator).to.equal('equal');
+    expect(table.refreshTimeout).to.not.equal(null);
+    table.refresh();
+    expect(table.filters.id.value).to.equal(10);
+    expect(table.filters.id.operator).to.equal('equal');
 
     // clear id filter: 10
     inputs[0].value = '';
     inputs[0].dispatchEvent(new Event('input'));
     fixture.detectChanges();
 
-    expect(fixture.componentInstance.table.refreshTimeout).to.not.equal(null);
-    fixture.componentInstance.table.refresh();
-    expect(fixture.componentInstance.table.filters.id).to.equal(undefined);
+    expect(table.refreshTimeout).to.not.equal(null);
+    table.refresh();
+    expect(table.filters.id).to.equal(undefined);
 
     // fill name filter: peter
     inputs[1].value = 'peter';
     inputs[1].dispatchEvent(new Event('input'));
     fixture.detectChanges();
 
-    expect(fixture.componentInstance.table.refreshTimeout).to.not.equal(null);
-    fixture.componentInstance.table.refresh();
-    expect(fixture.componentInstance.table.filters.name.value).to.equal('peter');
-    expect(fixture.componentInstance.table.filters.name.operator).to.equal('like');
+    expect(table.refreshTimeout).to.not.equal(null);
+    table.refresh();
+    expect(table.filters.name.value).to.equal('peter');
+    expect(table.filters.name.operator).to.equal('like');
+
+    //
+    // pagination test
+    //
+    expect(table.totalCount).to.equal(45);
+    expect(table.limit).to.equal(10);
+    expect(table.pages.length).to.equal(5);
 
   }));
 });

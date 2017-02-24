@@ -284,7 +284,7 @@ export class Table implements OnInit {
    * update pagination
    */
   updatePagination(): void {
-    this.pageCount = Math.floor(this.totalCount / this.limit);
+    this.pageCount = Math.ceil(this.totalCount / this.limit);
     this.pages = Array(this.pageCount).fill(0).map((x, i) => i);
   }
   /**
