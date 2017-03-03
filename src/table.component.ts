@@ -10,6 +10,12 @@ export class Order {
   by: string;
   mod: string;
 }
+
+export class Filter {
+  property: string;
+  operator: string;
+  value: any;
+}
 /**
  * Metadata added to objects in the list
  */
@@ -139,7 +145,7 @@ export class Table implements OnInit {
    * }
    * ```
    */
-  @Input() filters: any = {};
+  @Input() filters: Filter[] = [];
   /**
    * list of objects from API
    */
@@ -168,28 +174,78 @@ export class Table implements OnInit {
       this.refresh();
     }
   }
+  /**
+   * get filter by property
+   */
+  getFilter(property: string): Filter|null {
+    for (let i: number = 0; i < this.filters.length; ++i) {
+      if (this.filters[i].property === property) {
+        return this.filters[i];
+      }
+    }
+
+    return null;
+  }
+  /**
+   * Remove filter by property
+   */
+  removeFilter(property: string): boolean {
+    for (let i: number = 0; i < this.filters.length; ++i) {
+      if (this.filters[i].property === property) {
+        this.filters.splice(i, 1);
+        return true;
+      }
+    }
+
+    return false;
+  }
   /*
    * Set/remove filter and queueRefresh
    * Note only 'IS NULL' operator allow value to be null
    * the rest just remove the filter.
    */
-  setFilter(property: string, operator: string, value: any): void {
-    if (operator === 'IS NULL') {
-      this.filters[property] = {
-        operator: operator,
-        value: null // not needed
-      };
-    } else if (
-      value === null ||
-      (typeof value === 'string' && !value.length)
-    ) {
-      delete this.filters[property];
-    } else {
-      this.filters[property] = {
-        operator: operator,
-        value: value
-      };
+  setFilter(property: string, operator: string, value: any, allowNull: boolean = false): void {
+    // search property
+    let idx: number = -1;
+    for (let i: number = 0; i < this.filters.length; ++i) {
+      if (this.filters[i].property === property) {
+        idx = i;
+      }
     }
+
+    // not found create
+    if (idx === -1) {
+      if (value === null && !allowNull) {
+        return;
+      }
+
+      if (value === null && allowNull) {
+        this.filters.push({
+          property: property,
+          operator: operator,
+          value: null // not really needed here
+        });
+      } else {
+        this.filters.push({
+          property: property,
+          operator: operator,
+          value: value
+        });
+      }
+    } else {
+      // update or delete ? :)
+      if (
+        (value === null && !allowNull) ||
+        (typeof value === 'string' && !value.length)
+      ) {
+        this.filters.splice(idx, 1);
+      } else {
+        let obj: Filter = this.filters[idx];
+        obj.operator = operator;
+        obj.value = value;
+      }
+    }
+
     this.queueRefresh();
   }
   /**
@@ -215,15 +271,17 @@ export class Table implements OnInit {
     }, this.refreshDelay);
   }
   /**
-   * Get HTTP Observable
+   * Get HTTP/CSV Observable, you should handle how to save it
    */
-  getCSV(): void {
-    this.getHttp(new RequestOptions({
+  getCSV(): Observable<Response> {
+    return this.getHttp(new RequestOptions({
       headers: new Headers({ 'Content-Type': 'text/csv'
-    })}))
+    })}));
+    /*
     .subscribe(response => {
       console.log(response);
     });
+    */
   }
   /*
    * Encode limit, page, filter and order into a string to append to query
@@ -269,8 +327,6 @@ export class Table implements OnInit {
   refresh(): any {
     window.clearTimeout(this.refreshTimeout); // also clear here, because pagination it's instant
     this.refreshTimeout = null;
-
-    console.log('refresh!');
 
     return this.getHttp()
       .subscribe(
