@@ -177,7 +177,7 @@ export class Table implements OnInit {
   /**
    * get filter by property
    */
-  getFilter(property: string): Filter|null {
+  getFilter(property: string): Filter {
     for (let i: number = 0; i < this.filters.length; ++i) {
       if (this.filters[i].property === property) {
         return this.filters[i];
