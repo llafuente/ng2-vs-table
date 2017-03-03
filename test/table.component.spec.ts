@@ -164,8 +164,8 @@ describe('hello-world component', () => {
     expect(table.refreshTimeout).to.equal(null);
     const orders: any = fixture.nativeElement.querySelectorAll('vs-order-by a');
 
-    //console.log(fixture.nativeElement);
-    // click & force refresh now!
+
+        // click & force refresh now!
     orders[0].click();
     expect(table.refreshTimeout).to.not.equal(null);
     table.refresh();
@@ -208,8 +208,8 @@ describe('hello-world component', () => {
 
     expect(table.refreshTimeout).to.not.equal(null);
     table.refresh();
-    expect(table.filters.id.value).to.equal(10);
-    expect(table.filters.id.operator).to.equal('equal');
+    expect(table.getFilter('id').value).to.equal(10);
+    expect(table.getFilter('id').operator).to.equal('equal');
 
     // clear id filter: 10
     inputs[0].value = '';
@@ -218,7 +218,7 @@ describe('hello-world component', () => {
 
     expect(table.refreshTimeout).to.not.equal(null);
     table.refresh();
-    expect(table.filters.id).to.equal(undefined);
+    expect(table.getFilter('id')).to.equal(null, 'filter removed');
 
     // fill name filter: peter
     inputs[1].value = 'peter';
@@ -227,8 +227,31 @@ describe('hello-world component', () => {
 
     expect(table.refreshTimeout).to.not.equal(null);
     table.refresh();
-    expect(table.filters.name.value).to.equal('peter');
-    expect(table.filters.name.operator).to.equal('like');
+    expect(table.getFilter('name').value).to.equal('peter');
+    expect(table.getFilter('name').operator).to.equal('like');
+
+
+    table.filters = [];
+    // can't set the filter
+    table.setFilter('nulltest', 'IS NULL', null);
+    expect(table.getFilter('nulltest')).to.equal(null);
+
+    table.setFilter('nulltest', 'IS NULL', null, true);
+    expect(table.getFilter('nulltest').value).to.equal(null,
+      'filter set with null value');
+
+    table.setFilter('nulltest', 'IS NULL', null, true);
+    expect(table.getFilter('nulltest')).not.to.equal(null,
+      'null alowed, do not remove');
+
+    table.setFilter('nulltest', 'IS NULL', null, false);
+    expect(table.getFilter('nulltest')).to.equal(null,
+      'null not allowed, so remove');
+
+    // set again and remove
+    table.setFilter('nulltest', 'IS NULL', null, true);
+    table.removeFilter('nulltest');
+    expect(table.getFilter('nulltest')).to.equal(null);
 
     //
     // pagination test
